@@ -122,16 +122,21 @@ task.spawn(function()
             task.wait(0.4)
         end
 
-        -- 4. Auto Feed / Use Items (ป้องกันกระเป๋าเต็ม 10 ผล)
+        -- 4. Auto Feed / Use Items (ครอบคลุมชื่อ Remote ที่อาจเป็นไปได้ทั้งหมด)
         if AutoFeed then
             pcall(function()
-                local useRemote = remotes:FindFirstChild("Feed") or remotes:FindFirstChild("UseItem") or remotes:FindFirstChild("Consume")
-                if useRemote and useRemote:IsA("RemoteEvent") then
-                    useRemote:FireServer("Beetroot")
-                    task.wait(0.1)
-                    useRemote:FireServer("Carrot")
-                    task.wait(0.1)
-                    useRemote:FireServer("Apple")
+                -- ค้นหา Remote ทุกตัวใน ReplicatedStorage เพื่อช่วยกดใช้ไอเทม
+                for _, child in ipairs(ReplicatedStorage:GetDescendants()) do
+                    if child:IsA("RemoteEvent") then
+                        local n = child.Name:lower()
+                        if n:find("feed") or n:find("item") or n:find("eat") or n:find("use") or n:find("apple") then
+                            child:FireServer("Apple")
+                            child:FireServer("Carrot")
+                            child:FireServer("Beetroot")
+                            child:FireServer(1)
+                            child:FireServer(2)
+                        end
+                    end
                 end
             end)
             task.wait(1)
